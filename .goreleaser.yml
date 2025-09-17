@@ -4,7 +4,6 @@ before:
   hooks:
     - go mod tidy
 
-
 builds:
   - id: any
     main: ./cmd/mcc
@@ -15,8 +14,8 @@ builds:
       - linux
       - darwin
     goarch:
-      - "amd64"
-      - "arm64"
+      - 'amd64'
+      - 'arm64'
 
 archives:
   - formats: [tar.gz]
@@ -30,23 +29,23 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - "^docs:"
-      - "^test:"
+      - '^docs:'
+      - '^test:'
 
 brews:
   - name: mcc
     repository:
-      owner: Aiden
+      owner: onggizam
       name: homebrew-mcc
       branch: main
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+      token: '{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}'
     commit_author:
       name: goreleaserbot
       email: goreleaser@github.com
     directory: Formula
-    homepage: "https://github.com/onggizam/mcc"
-    description: "A CLI tool to manage and switch between multiple Kubernetes cluster configs."
-    license: "MIT"
+    homepage: 'https://github.com/onggizam/mcc'
+    description: 'A CLI tool to manage and switch between multiple Kubernetes cluster configs.'
+    license: 'MIT'
     test: |
       system "#{bin}/mcc version"
     install: |

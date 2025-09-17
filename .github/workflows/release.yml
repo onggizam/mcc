@@ -2,19 +2,19 @@ name: release
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
     paths:
-      - "cmd/**"
-      - "scripts/**"
-      - "internal/**"
-      - "go.mod"
+      - 'cmd/**'
+      - 'scripts/**'
+      - 'internal/**'
+      - 'go.mod'
 
   workflow_dispatch:
     inputs:
       bump:
-        description: "Version bump (major|minor|patch|auto)"
+        description: 'Version bump (major|minor|patch|auto)'
         required: false
-        default: "auto"
+        default: 'auto'
 
 permissions:
   contents: write
@@ -97,7 +97,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: '1.25'
 
       - name: Go version
         run: go version
