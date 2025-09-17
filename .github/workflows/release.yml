@@ -1,0 +1,112 @@
+name: release
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "cmd/**"
+      - "scripts/**"
+      - "internal/**"
+      - "go.mod"
+
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump (major|minor|patch|auto)"
+        required: false
+        default: "auto"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.ver.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name  "Aiden"
+          git config user.email "onggizam@gmail.com"
+
+      - name: Compute next version
+        id: ver
+        env:
+          BUMP: ${{ github.event_name == 'workflow_dispatch' && inputs.bump || 'auto' }}
+        run: |
+          chmod +x ./scripts/version.sh
+          TAG="$(./scripts/version.sh)"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Next tag: ${TAG}"
+
+      - name: Commit version file (if changed)
+        run: |
+          git add pkg/version/version.go 2>/dev/null || true
+          git commit -m "chore: release ${{ steps.ver.outputs.tag }} [skip ci]" || echo "No changes to commit"
+
+      - name: Push commit to main (if created)
+        run: |
+          COMMITS=$(git rev-list origin/main..HEAD | wc -l)
+          if [ "$COMMITS" -gt 0 ]; then
+            git push origin HEAD:main
+          else
+            echo "No new commit to push"
+          fi
+
+      - name: Create tag
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Tag $TAG already exists — skipping"
+          else
+            git tag -a "$TAG" -m "release $TAG"
+          fi
+
+      - name: Push tag
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            git push origin "refs/tags/$TAG" || echo "Tag already on remote"
+          fi
+
+  release:
+    runs-on: ubuntu-latest
+    needs: prepare_tag
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout created tag
+        run: |
+          git fetch --tags --force
+          git checkout "refs/tags/${{ needs.prepare_tag.outputs.tag }}"
+          echo "Checked out ${{ needs.prepare_tag.outputs.tag }}"
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: Go version
+        run: go version
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}

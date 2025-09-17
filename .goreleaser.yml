@@ -1,0 +1,58 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+
+builds:
+  - id: any
+    main: ./cmd/mcc
+    binary: mcc
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - "amd64"
+      - "arm64"
+
+archives:
+  - formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+brews:
+  - name: mcc
+    repository:
+      owner: Aiden
+      name: homebrew-mcc
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: goreleaserbot
+      email: goreleaser@github.com
+    directory: Formula
+    homepage: "https://github.com/onggizam/mcc"
+    description: "A CLI tool to manage and switch between multiple Kubernetes cluster configs."
+    license: "MIT"
+    test: |
+      system "#{bin}/mcc version"
+    install: |
+      bin.install "mcc"
+
+release:
+  footer: >-
+    ---
+    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
