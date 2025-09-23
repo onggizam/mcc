@@ -47,15 +47,16 @@ kubectl get cm kubeadm-config -n kube-system -o yaml > cluster1
 
 ## Commands & Options
 
-| Command         | Options             | Description                                                              |
-| --------------- | ------------------- | ------------------------------------------------------------------------ |
-| `mcc add`       | `-f, --file <path>` | Source kubeconfig file (default: current `~/.kube/config`)               |
-|                 | `-n, --name <name>` | Name to store the kubeconfig as (**required**)                           |
-|                 | `--force`           | Overwrite if the name already exists                                     |
-| `mcc ch <name>` | `--backup`          | Switch to the given cluster config; optionally backup the current config |
-| `mcc list`      | _(none)_            | Show stored kubeconfigs in a table (NO., NAME, CREATED, SERVER, ACTIVE)  |
-| `mcc delete`    | `<name>`            | Remove the stored kubeconfig with the given name                         |
-| `mcc version`   | _(none)_            | Print the current version of mcc                                         |
+| Command         | Options             | Description                                                                  |
+| --------------- | ------------------- | ---------------------------------------------------------------------------- |
+| `mcc add`       | `-f, --file <path>` | Source kubeconfig file (default: current `~/.kube/config`)                   |
+|                 | `-n, --name <name>` | Name to store the kubeconfig as (**required**)                               |
+|                 | `--force`           | Overwrite if the name already exists                                         |
+| `mcc ch <name>` | `--backup`          | Switch to the given cluster config; optionally backup the current config     |
+| `mcc list`      | _(none)_            | Show stored kubeconfigs in a table (NO., NAME, CREATED, SERVER, ACTIVE)      |
+| `mcc delete`    | `<name>`            | Remove the stored kubeconfig with the given name                             |
+| `mcc now`       | _(none)_            | Show current active cluster info + cluster-wide Pod summary (all namespaces) |
+| `mcc version`   | _(none)_            | Print the current version of mcc                                             |
 
 ### Examples
 
@@ -64,6 +65,7 @@ mcc add -f ./myconfig -n cluster1 --force   # Add (overwrite if exists)
 mcc ch cluster1 --backup                    # Switch and backup current config
 mcc list                                    # Show all stored configs
 mcc delete cluster1                         # Delete stored config
+mcc now                                     # Show current cluster info and Pods summary
 mcc version                                 # Show current version
 ```
 
