@@ -56,6 +56,7 @@ kubectl get cm kubeadm-config -n kube-system -o yaml > cluster1
 | `mcc list`      | _(none)_            | Show stored kubeconfigs in a table (NO., NAME, CREATED, SERVER, ACTIVE)      |
 | `mcc delete`    | `<name>`            | Remove the stored kubeconfig with the given name                             |
 | `mcc now`       | _(none)_            | Show current active cluster info + cluster-wide Pod summary (all namespaces) |
+| `mcc rename`    | `<old>` `<new>`     | Rename a stored kubeconfig (use --force to overwrite if exists)              |
 | `mcc version`   | _(none)_            | Print the current version of mcc                                             |
 
 ### Examples
